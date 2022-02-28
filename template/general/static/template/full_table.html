@@ -1,0 +1,74 @@
+<html>
+    <header>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css"> 
+    </header>
+    <body>
+        <div><table id="mytable" class="display"></table></div>
+    </body>
+    <script src="../js/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script>
+            parseCsv = function(text){
+                var out = new Object(); 
+                text = text.match(/[^\r\n]+/g);
+                header = text.shift(); 
+                out.header = header.split(','); 
+                text.forEach(function(item, index){
+                    text[index] = item.split(',')
+                })
+                out.data = text; 
+                return out; 
+            }
+		
+        // 载入表格数据
+        load_table_data = function(container, data_path){
+            console.log('data_path', data_path); 
+            $.get(data_path, function(data, status, xhr){
+                if (status == "success"){
+                    json = parseCsv(data); 
+                    var header = json.header;
+                    mytr = header.join("</td><td>"); 
+                    mytr = "<thead><tr><td>" + mytr + "</td></tr></thead>"; 
+                    container.html(mytr); 
+                    container.DataTable({
+                        data: json.data, 
+                        paging: false
+                    })
+                }
+                else{
+                    alert("load table file failed. "); 
+                    return
+                }
+            })
+        }
+        function getParameterURL(str){
+            var parameterURL = location.search.substring(1, location.search.length);
+            var paramArr = parameterURL.split("&");
+            var key,value,temp;
+            var paramobj = {};
+
+            for (i = 0; i < paramArr.length; i++) {
+                temp = paramArr[i].split("=");
+                if (temp.length === 1) {
+                    paramobj[temp[0]] = "";
+                }
+                else if(temp.length>1){
+                    for (j = 0; j < temp.length; j++) {
+                        paramobj[temp[0]] = decodeURIComponent(temp[1]);
+                    }
+                }
+            }
+            
+            //如果参数名不存在,函数会返回undefined,尽量不要让函数返回undefined,让其返回空字符串
+            return paramobj[str]==undefined?"":paramobj[str];
+        }
+        path = getParameterURL("path"); 
+        if (path == ""){
+            alert("please specify path in URL! "); 
+        } else{
+            path = "../../" + path; 
+            load_table_data($("#mytable"), path); 
+        }
+        
+    </script>
+</html>

@@ -1,0 +1,17 @@
+{
+"readme": {
+    "figure": "图表，每张图应该有一个固定的图表编号作为key，其属性作为value。包含path、desc、title、rename、max-width等参数。",
+    "data": "数据文件，有path、desc、title、rename属性",
+    "table": "图表，有path、desc、title、rename属性。"
+}, 
+
+"figure": {
+},
+
+"data": {
+},
+
+"table": {
+}
+
+}

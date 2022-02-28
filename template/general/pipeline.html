@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="static/css/atom-one-dark.min.css">
+		<style>
+			/* for block of numbers */
+			.hljs-ln-numbers {
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+
+				text-align: center;
+				color: #ccc;
+				border-right: 1px solid #CCC;
+				vertical-align: top;
+				padding-right: 5px;
+
+				/* your custom style here */
+			}
+			/* for block of code */
+			.hljs-ln-code {
+				padding-left: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="text-align:center">
+			<div style="float:left; width:45%; border-right:1px dashed #000000; padding:10px; height: 100vh; overflow: auto;">
+				<div id="figure"></div>
+			</div>
+			<div id="description" style="float:left; width:45%; padding:10px; text-align:left; height: 100vh; overflow: auto;">
+				<!--insert description here-->
+				<h1 id="step_title">点击步骤显示代码</h1>
+			</div>
+	    </div>
+	</body>
+	<script src="static/js/jquery.min.js"></script>
+	<script src="static/js/highlight.min.js"></script>
+	<script src="static/js/highlightjs-line-numbers.min.js"></script>
+	<script>
+		var bind_chang_script = function(){
+			$("#scripts").change(function(){
+				var scripts_path = $("#scripts").val();
+				$("#script_code").load(scripts_path, function(){
+					var script_type = scripts_path.split(".")
+					script_type = script_type.pop(); 
+					switch(script_type){
+						case "py": 
+							script_type = "python";
+							break;
+						case "r":
+							script_type = "R";
+							break;
+						case "sh":
+							script_type = "bash";
+							break;
+					}
+					$(this).attr("class", script_type)
+					var code_block = document.getElementById("script_code"); 
+					hljs.highlightElement(code_block);
+					hljs.lineNumbersBlock(code_block); 
+				})
+			})
+
+		}
+	    $("#figure").load("figures/pipeline.svg", function(responseTxt,statusTxt,xhr){
+			// svg加载完毕后，给每个g对象内的文本绑定单击响应事件，并更改鼠标悬停时的字体样式。
+			console.log("ajax loaded. ")
+			$("g text").on("click", function(event){
+				var step_name = $(this).html(); 
+				console.log("点击步骤了！ " + step_name); 
+				$("#description").load("static/step_code/" + step_name + ".html", 
+					function(responseTxt,statusTxt,xhr){
+						console.log("step代码加载完毕"); 
+						// 代码载入后，使用highlight.js渲染，并为选择框绑定事件。
+						if(statusTxt=="success"){
+							bind_chang_script(); 
+							var code_block = document.getElementById("step_code"); 
+							hljs.highlightElement(code_block); 
+							hljs.lineNumbersBlock(code_block); 
+						}
+					    if(statusTxt=="error"){
+							console.log("Error: "+xhr.status+": "+xhr.statusText);
+							$("#step_code").html("")
+						}
+					}
+				); 
+			})
+			$("g text").hover(
+				function(){
+					$(this).css({"cursor": "hand", "fill": "blue", "font-weight": "bold"})
+				}, function(){
+					$(this).css({"cursor":"pointer", "fill": "#000000", "font-weight": "normal"})
+				})
+		    $("#node1 text").click(); 
+		}); 
+	</script>
+</html>
